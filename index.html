@@ -3,120 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StudyFlow</title>
+    <meta name="theme-color" content="#121a2e" />
+    <title>StudyFlow — 自分だけの学習スペース</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="app-shell">
-      <aside class="sidebar">
-        <div class="brand">
+    <section id="authScreen" class="auth-screen">
+      <div class="auth-card">
+        <div class="brand auth-brand">
           <div class="brand-mark">S</div>
-          <div>
-            <p class="eyebrow">学習管理</p>
-            <h1>StudyFlow</h1>
-          </div>
+          <div><p class="eyebrow">あなたの学習スペース</p><h1>StudyFlow</h1></div>
         </div>
+        <p class="auth-intro">ログインして、自分専用の学習ダッシュボードを開こう。</p>
+        <div class="auth-tabs" role="tablist" aria-label="アカウント操作">
+          <button id="loginTab" class="auth-tab active" type="button">ログイン</button>
+          <button id="signupTab" class="auth-tab" type="button">新規登録</button>
+        </div>
+        <form id="authForm" class="auth-form">
+          <label id="nameField" class="form-field hidden">表示名<input id="displayName" type="text" autocomplete="name" maxlength="40" placeholder="例: はな" /></label>
+          <label class="form-field">メールアドレス<input id="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com" /></label>
+          <label class="form-field">パスワード<input id="password" type="password" autocomplete="current-password" required minlength="8" placeholder="8文字以上" /></label>
+          <p id="authError" class="auth-error" aria-live="polite"></p>
+          <button id="authSubmit" class="primary-btn auth-submit" type="submit">ログイン</button>
+        </form>
+        <p class="auth-note">このデモではアカウント情報と学習データをこのブラウザー内に保存します。別の端末との同期や本番向けの安全な認証には、サーバー認証の設定が必要です。</p>
+      </div>
+    </section>
 
-        <nav class="nav">
-          <button class="nav-item active">ダッシュボード</button>
-          <button class="nav-item">Todo</button>
-          <button class="nav-item">レポート</button>
+    <div id="appShell" class="app-shell hidden">
+      <aside class="sidebar">
+        <div class="brand"><div class="brand-mark">S</div><div><p class="eyebrow">学習管理</p><h1>StudyFlow</h1></div></div>
+        <nav class="nav" aria-label="メインナビゲーション">
+          <button class="nav-item active" type="button">ダッシュボード</button>
+          <button class="nav-item" type="button" onclick="document.getElementById('taskInput').focus()">Todoを追加</button>
+          <button class="nav-item" type="button" onclick="document.getElementById('progressPanel').scrollIntoView({behavior:'smooth'})">学習の進捗</button>
         </nav>
-
-        <div class="mini-card">
-          <p class="tiny-label">今日の状態</p>
-          <h3 id="todayStatus">集中開始</h3>
-        </div>
+        <div class="mini-card"><p class="tiny-label">今日の状態</p><h3 id="todayStatus">集中開始</h3></div>
+        <div class="sidebar-account"><span id="userAvatar" class="user-avatar">S</span><div class="account-copy"><strong id="sidebarUserName">学習者</strong><span id="sidebarUserEmail"></span></div><button id="logoutBtn" class="logout-btn" type="button" title="ログアウト" aria-label="ログアウト">↪</button></div>
       </aside>
 
       <main class="main-panel">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">今日の学習</p>
-            <h2 id="currentDate">2026年11月15日</h2>
-          </div>
-          <button class="ghost-btn">+ 学習を記録</button>
-        </header>
-
+        <header class="topbar"><div><p class="eyebrow">MY STUDY SPACE</p><h2><span id="welcomeName">こんにちは</span>、今日も一歩ずつ。</h2><p id="currentDate" class="date-line"></p></div><span class="private-badge">🔒 あなた専用</span></header>
         <section class="hero-grid">
-          <div class="panel focus-panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">集中タイマー</p>
-                <h3>今日の学習時間</h3>
-              </div>
-              <span class="badge">25分</span>
-            </div>
-
-            <div class="timer-wrap">
-              <div class="timer-ring">
-                <div class="timer-value" id="timerDisplay">25:00</div>
-              </div>
-            </div>
-
-            <div class="timer-actions">
-              <button id="startBtn" class="primary-btn">開始</button>
-              <button id="pauseBtn" class="secondary-btn">一時停止</button>
-              <button id="resetBtn" class="ghost-btn">リセット</button>
-            </div>
-          </div>
-
-          <div class="panel stats-panel">
-            <div class="stat-block">
-              <p class="tiny-label">総学習時間</p>
-              <h3 id="totalStudyTime">120分</h3>
-            </div>
-            <div class="stat-block">
-              <p class="tiny-label">完了ポモドーロ</p>
-              <h3 id="pomodoroCount">4</h3>
-            </div>
-            <div class="stat-block">
-              <p class="tiny-label">連続日数</p>
-              <h3 id="streakCount">7日</h3>
-            </div>
-          </div>
+          <div class="panel focus-panel"><div class="panel-header"><div><p class="eyebrow">集中タイマー</p><h3>集中する時間をつくろう</h3></div><span class="badge">25分</span></div><div class="timer-wrap"><div class="timer-ring"><div class="timer-value" id="timerDisplay">25:00</div></div></div><div class="timer-actions"><button id="startBtn" class="primary-btn" type="button">開始</button><button id="pauseBtn" class="secondary-btn" type="button">一時停止</button><button id="resetBtn" class="ghost-btn" type="button">リセット</button></div></div>
+          <div class="panel stats-panel"><div class="stat-block"><p class="tiny-label">総学習時間</p><h3 id="totalStudyTime">0分</h3><span class="stat-caption">自分の積み重ね</span></div><div class="stat-block"><p class="tiny-label">完了ポモドーロ</p><h3 id="pomodoroCount">0</h3><span class="stat-caption">集中セッション</span></div><div class="stat-block"><p class="tiny-label">連続日数</p><h3 id="streakCount">0日</h3><span class="stat-caption">今日から記録しよう</span></div></div>
         </section>
-
-        <section class="content-grid">
-          <div class="panel large-panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">学習計画</p>
-                <h3>今日のゴール</h3>
-              </div>
-            </div>
-
-            <div id="planGrid" class="plan-grid"></div>
-          </div>
-
-          <div class="panel task-panel">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">To-do</p>
-                <h3>今日のタスク</h3>
-              </div>
-            </div>
-
-            <form id="taskForm" class="task-form">
-              <input id="taskInput" type="text" placeholder="例: 英単語20個を覚える" maxlength="60" />
-              <select id="taskCategory">
-                <option value="英語">英語</option>
-                <option value="数学">数学</option>
-                <option value="IT">IT</option>
-                <option value="国語">国語</option>
-              </select>
-              <button type="submit" class="primary-btn">追加</button>
-            </form>
-
-            <ul id="taskList" class="task-list"></ul>
-          </div>
-        </section>
+        <section id="progressPanel" class="content-grid"><div class="panel large-panel"><div class="panel-header"><div><p class="eyebrow">学習計画</p><h3>科目ごとの進捗</h3></div></div><div id="planGrid" class="plan-grid"></div></div>
+          <div class="panel task-panel"><div class="panel-header"><div><p class="eyebrow">TO-DO LIST</p><h3>今日のタスク</h3></div><span id="taskCount" class="badge">0件</span></div><form id="taskForm" class="task-form"><input id="taskInput" type="text" placeholder="今日やることを入力" maxlength="100" aria-label="タスク名" /><select id="taskCategory" aria-label="科目"><option value="英語">英語</option><option value="数学">数学</option><option value="IT">IT</option><option value="国語">国語</option></select><button type="submit" class="primary-btn">追加</button></form><ul id="taskList" class="task-list"></ul><p id="emptyTasks" class="empty-state">最初のタスクを追加してみましょう ✨</p></div></section>
+        <footer class="app-footer">Your space, your pace. <span>StudyFlow</span></footer>
       </main>
     </div>
-
     <script src="script.js"></script>
   </body>
 </html>
