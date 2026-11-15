@@ -13,10 +13,7 @@
   <body>
     <section id="authScreen" class="auth-screen">
       <div class="auth-card">
-        <div class="brand auth-brand">
-          <div class="brand-mark">S</div>
-          <div><p class="eyebrow">あなたの学習スペース</p><h1>StudyFlow</h1></div>
-        </div>
+        <div class="brand auth-brand"><div class="brand-mark">S</div><div><p class="eyebrow">あなたの学習スペース</p><h1>StudyFlow</h1></div></div>
         <p class="auth-intro">ログインして、自分専用の学習ダッシュボードを開こう。</p>
         <div class="auth-tabs" role="tablist" aria-label="アカウント操作">
           <button id="loginTab" class="auth-tab active" type="button">ログイン</button>
@@ -29,7 +26,7 @@
           <p id="authError" class="auth-error" aria-live="polite"></p>
           <button id="authSubmit" class="primary-btn auth-submit" type="submit">ログイン</button>
         </form>
-        <p class="auth-note">このデモでは開発用にローカル保存を使っています。本格運用を目指す場合は Supabase などの認証サービスとデータベースに置き換えます。</p>
+        <p class="auth-note">安全なログインには Supabase の設定が必要です。設定が終わるまで、アカウント情報は受け付けません。</p>
       </div>
     </section>
 
@@ -44,7 +41,6 @@
         <div class="mini-card"><p class="tiny-label">今日の状態</p><h3 id="todayStatus">集中開始</h3></div>
         <div class="sidebar-account"><span id="userAvatar" class="user-avatar">S</span><div class="account-copy"><strong id="sidebarUserName">学習者</strong><span id="sidebarUserEmail"></span></div><button id="logoutBtn" class="logout-btn" type="button" title="ログアウト" aria-label="ログアウト">↪</button></div>
       </aside>
-
       <main class="main-panel">
         <header class="topbar"><div><p class="eyebrow">MY STUDY SPACE</p><h2><span id="welcomeName">こんにちは</span>、今日も一歩ずつ。</h2><p id="currentDate" class="date-line"></p></div><span class="private-badge">🔒 あなた専用</span></header>
         <section class="hero-grid">
@@ -57,6 +53,7 @@
       </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

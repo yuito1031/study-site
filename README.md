@@ -1,60 +1,27 @@
 # StudyFlow
 
-StudyFlow は、学習の習慣化を支えるためのシンプルな学習管理サイトです。
+個人ごとの学習データをクラウドに保存する、Supabase Auth 対応の学習ダッシュボードです。
 
-## できること
-- 25分集中タイマー
-- To-do 管理
-- 科目ごとの進捗表示
-- アカウントごとの個人データ管理
-- GitHub Pages にそのまま公開可能
+## 機能
+- Supabase Auth のメール/パスワード認証（新規登録・ログイン・ログアウト）
+- Supabase PostgreSQL へのタスク、学習時間、ポモドーロ記録の保存
+- Row Level Security (RLS) でユーザーごとのプロフィール行を分離
+- 25分集中タイマー、To-do、科目別進捗表示
 
-## 使い方
-1. `index.html` をブラウザーで開く
-2. 新規登録またはログイン
-3. タスクを追加して学習を開始
+## Supabase 接続手順
+1. [Supabase](https://supabase.com) でプロジェクトを作成します。
+2. Supabase Dashboard → **SQL Editor** で `supabase-schema.sql` の内容を実行します。
+3. Dashboard → **Project Settings → API** から Project URL と publishable key（旧 anon key）をコピーします。`service_role` / secret key は絶対に使わないで��ださい。
+4. リポジトリの `supabase-config.js` を編集し、プレースホルダーを自分の Project URL と publishable/anon key に置き換えて `main` にコミットします。ブラウザー用の publishable/anon key は公開される前提の値ですが、RLS は必須です。
+5. Authentication → URL Configuration で Site URL に `https://yuito1031.github.io` を設定し、Redirect URLs に `https://yuito1031.github.io/study-site/` を追加します。
+6. Authentication → Providers → Email でメール認証を有効にします。確認メールを使う場合は、メール内のリンクからサイトに戻れるよう URL 設定を確認してください。
+7. GitHub Pages が最新コミットをデプロイしたら、サイトで新規登録・ログインを確認します。新規登録で確認メールが有効な場合、メール確認後にログインしてください。
 
-## 本格ログイン対応の方法
-今の実装は、Supabase を使った本格ログインに対応する準備を入れています。
+## パスワードやキーについて
+- Supabase の secret/service_role key を `supabase-config.js`、HTML、JavaScript、GitHub に置かないでください。
+- GitHub Pages は静的ホスティングです。ブラウザーに置く設定値は利用者から見えます。アクセス制御は Supabase Auth と RLS で行います。
+- 以前のデモ版で登録したローカルアカウント�� Supabase アカウントに移行されません。Supabase で新規登録してください。
+- 本番運用前に Supabase のメール送信設定、利用制限、バックアップ、プライバシー告知を確認してください。
 
-### 1. Supabase を作成する
-- https://supabase.com にアクセス
-- 新規プロジェクトを作成
-- SQL Editor で次のテーブルを作成
-
-```sql
-create table public.study_profiles (
-  user_id uuid primary key,
-  email text not null,
-  name text not null,
-  tasks jsonb not null default '[]'::jsonb,
-  total_study_time integer not null default 0,
-  pomodoro_count integer not null default 0,
-  streak_count integer not null default 0,
-  updated_at timestamptz not null default now()
-);
-
-alter table public.study_profiles enable row level security;
-```
-
-### 2. `script.js` の設定を変更する
-`script.js` の先頭にある次の値を自分の Supabase の値に置き換えます。
-
-```js
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-```
-
-### 3. そのまま GitHub Pages へ公開
-- GitHub リポジトリで Settings → Pages を開く
-- Branch: `main`
-- Folder: `/ (root)`
-- Save
-
-## 注意事項
-- このデモはブラウザー内の localStorage を使うこともできます。
-- 本番運用の本格認証では、Supabase Auth と RLS を使うのが安全です。
-- GitHub Pages は静的サイトのみです。データベースや本格ログインはバックエンドサービスが必要です。
-
-## ライセンス
-MIT
+## ローカル確認
+`index.html` をブラウザーで開くか、GitHub Pages で公開した URL を開きます。Supabase の設定を入れるまでは認証を有効にせず、ログイン情報も受け取りません。
