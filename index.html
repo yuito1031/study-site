@@ -1,75 +1,8 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#10182b" />
-  <title>My Hub — あなたの毎日をひとつに</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261115-authfix" />
-</head>
-<body>
-  <section id="authScreen" class="auth-screen">
-    <div class="auth-card">
-      <a class="brand" href="#"><span class="brand-mark">H</span><span><small>PERSONAL SPACE</small><strong>My Hub</strong></span></a>
-      <p class="auth-intro">タスクもメモも習慣も。毎日のことを、ここにまとめよう。</p>
-      <div class="auth-tabs" role="tablist" aria-label="アカウント操作">
-        <button id="loginTab" class="auth-tab active" type="button" onclick="window.myHubSetAuthMode('login')">ログイン</button>
-        <button id="signupTab" class="auth-tab" type="button" onclick="window.myHubSetAuthMode('signup')">新規登録</button>
-      </div>
-      <form id="authForm" class="auth-form">
-        <label id="nameField" class="field hidden">表示名<input id="displayName" type="text" autocomplete="name" maxlength="40" placeholder="例：はな" /></label>
-        <label class="field">メールアドレス<input id="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com" /></label>
-        <label class="field">パスワード<input id="password" type="password" autocomplete="current-password" required minlength="8" placeholder="8文字以上" /></label>
-        <p id="authMessage" class="message" aria-live="polite"></p>
-        <button id="authSubmit" class="button primary full" type="submit">ログイン</button>
-      </form>
-      <p class="auth-footnote">データはログインしたアカウントに保存されます。</p>
-    </div>
-  </section>
-
-  <div id="app" class="app hidden">
-    <aside class="sidebar">
-      <a class="brand" href="#home"><span class="brand-mark">H</span><span><small>PERSONAL SPACE</small><strong>My Hub</strong></span></a>
-      <p class="side-label">WORKSPACE</p>
-      <nav class="navigation" aria-label="メインナビゲーション">
-        <button class="nav-link active" data-view="home" type="button"><span>⌂</span>ホーム</button>
-        <button class="nav-link" data-view="tasks" type="button"><span>☑</span>タスク</button>
-        <button class="nav-link" data-view="notes" type="button"><span>▤</span>メモ</button>
-        <button class="nav-link" data-view="habits" type="button"><span>✦</span>習慣</button>
-        <button class="nav-link" data-view="events" type="button"><span>▦</span>予定</button>
-      </nav>
-      <div class="sidebar-bottom">
-        <div class="profile"><span id="avatar" class="avatar">H</span><span class="profile-copy"><strong id="profileName">ユーザー</strong><small id="profileEmail"></small></span></div>
-        <button id="logoutBtn" class="logout" type="button">ログアウト</button>
-      </div>
-    </aside>
-    <main class="main">
-      <header class="topbar"><div><p class="overline">YOUR PERSONAL DASHBOARD</p><h1 id="pageTitle">ホーム</h1></div><div class="today-chip" id="todayLabel"></div></header>
-      <section id="homeView" class="view">
-        <div class="welcome-card"><div><p class="overline">ひとつずつ、あなたのペースで</p><h2><span id="welcomeName">こんにちは</span>さん、今日もいい一日に。</h2><p>やることを整理して、気持ちよく毎日を進めましょう。</p></div><div class="welcome-spark">✦</div></div>
-        <div class="summary-grid">
-          <article class="summary-card"><span class="summary-icon blue">☑</span><div><small>未完了タスク</small><strong id="summaryTasks">0</strong></div></article>
-          <article class="summary-card"><span class="summary-icon yellow">▤</span><div><small>保存したメモ</small><strong id="summaryNotes">0</strong></div></article>
-          <article class="summary-card"><span class="summary-icon green">✦</span><div><small>今日の習慣</small><strong id="summaryHabits">0 / 0</strong></div></article>
-        </div>
-        <div class="home-grid">
-          <article class="panel"><div class="panel-heading"><div><p class="overline">GET THINGS DONE</p><h3>今日のタスク</h3></div><button class="text-link" data-go="tasks" type="button">すべて見る →</button></div><ul id="homeTaskList" class="simple-list"></ul><p id="homeTaskEmpty" class="empty">タスクはまだありません。</p></article>
-          <article class="panel"><div class="panel-heading"><div><p class="overline">UP NEXT</p><h3>近い予定</h3></div><button class="text-link" data-go="events" type="button">予定を見る →</button></div><ul id="homeEventList" class="simple-list"></ul><p id="homeEventEmpty" class="empty">予定はまだありません。</p></article>
-        </div>
-        <article class="panel quick-panel"><div class="panel-heading"><div><p class="overline">YOUR TOOLKIT</p><h3>すぐ使える機能</h3></div></div><div class="tool-grid"><button class="tool-card" data-go="tasks" type="button"><span class="tool-icon blue">☑</span><strong>タスク管理</strong><small>やることを整理</small></button><button class="tool-card" data-go="notes" type="button"><span class="tool-icon yellow">▤</span><strong>メモ</strong><small>アイデアを記録</small></button><button class="tool-card" data-go="habits" type="button"><span class="tool-icon green">✦</span><strong>習慣トラッカー</strong><small>続けたいことを記録</small></button><button class="tool-card" data-go="events" type="button"><span class="tool-icon purple">▦</span><strong>予定</strong><small>日付つきで管理</small></button></div></article>
-      </section>
-      <section id="tasksView" class="view hidden"><div class="section-intro"><p>やることを追加して、終わったらチェックしましょう。</p></div><article class="panel"><form id="taskForm" class="entry-form"><input id="taskInput" type="text" maxlength="120" placeholder="新しいタスクを入力" aria-label="タスク" required /><button class="button primary" type="submit">タスクを追加</button></form><ul id="taskList" class="item-list"></ul><p id="taskEmpty" class="empty">タスクはまだありません。</p></article></section>
-      <section id="notesView" class="view hidden"><div class="section-intro"><p>思いついたことや、忘れたくないことを書き留めておけます。</p></div><article class="panel"><form id="noteForm" class="note-form"><input id="noteTitle" type="text" maxlength="100" placeholder="タイトル" aria-label="メモのタイトル" required /><textarea id="noteBody" rows="4" maxlength="3000" placeholder="メモを書く…" aria-label="メモの内容"></textarea><button class="button primary" type="submit">メモを保存</button></form><div id="noteList" class="note-grid"></div><p id="noteEmpty" class="empty">メモはまだありません。</p></article></section>
-      <section id="habitsView" class="view hidden"><div class="section-intro"><p>毎日続けたいことを登録して、今日できたらチェックしましょう。</p></div><article class="panel"><form id="habitForm" class="entry-form"><input id="habitInput" type="text" maxlength="80" placeholder="例：水を飲む、散歩する" aria-label="習慣" required /><button class="button primary" type="submit">習慣を���加</button></form><ul id="habitList" class="item-list"></ul><p id="habitEmpty" class="empty">習慣をひとつ追加してみましょう。</p></article></section>
-      <section id="eventsView" class="view hidden"><div class="section-intro"><p>日付を決めて、忘れたくない予定を記録できます。</p></div><article class="panel"><form id="eventForm" class="entry-form event-form"><input id="eventTitle" type="text" maxlength="120" placeholder="予定の内容" aria-label="予定の内容" required /><input id="eventDate" type="date" aria-label="日付" required /><button class="button primary" type="submit">予定を追加</button></form><ul id="eventList" class="item-list"></ul><p id="eventEmpty" class="empty">予定はまだありません。</p></article></section>
-      <footer class="footer">Your space, your pace. <strong>My Hub</strong></footer>
-    </main>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=20261115-authfix"></script>
-  <script src="hub.js?v=20261115-authfix"></script>
-</body>
-</html>
+<nav class="navigation" aria-label="メインナビゲーション">
+  <button class="nav-link active" data-view="home" type="button"><span>⌂</span>ホーム</button>
+  <button class="nav-link" data-view="tasks" type="button"><span>☑</span>タスク</button>
+  <button class="nav-link" data-view="notes" type="button"><span>▤</span>メモ</button>
+  <a class="nav-link" href="./notebook.html"><span>✎</span>手書きノート</a>
+  <button class="nav-link" data-view="habits" type="button"><span>✦</span>習慣</button>
+  <button class="nav-link" data-view="events" type="button"><span>▦</span>予定</button>
+</nav>
