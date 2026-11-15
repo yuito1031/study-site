@@ -7,530 +7,409 @@
   <title>手書きノート — My Hub</title>
   <style>
     :root {
-      --sky: #1e9dee;
-      --sky-dark: #0a87d4;
-      --navy: #0c3b6d;
-      --panel: rgba(255,255,255,.12);
-      --panel-strong: rgba(255,255,255,.18);
-      --line: rgba(255,255,255,.24);
-      --text: #edf6ff;
-      --muted: rgba(237,246,255,.78);
-      --card-shadow: rgba(9,53,96,.22);
-      --page-bg: #f8f9fb;
-      --ink: #1d2333;
-      --soft: #dfe7f4;
-      --tint-blue: #eaf5ff;
-      --tint-purple: #ece7ff;
-      --tint-yellow: #fff3df;
-      --tint-green: #e8fff7;
-      --primary: #2d7ff9;
-      --danger: #d94d5d;
+      --bg: #dfe4eb;
+      --sidebar-bg: #f2f3f7;
+      --paper: #ffffff;
+      --line: rgba(20, 31, 43, 0.09);
+      --ink: #20283d;
+      --ink-soft: rgba(32, 40, 61, 0.7);
+      --toolbar-bg: #eceef4;
+      --toolbar-border: #d5dbe5;
+      --tool-btn: #f9fafc;
+      --tool-btn-active: #dfeaf9;
+      --blue: #2c7ef5;
+      --shadow: rgba(22, 45, 75, 0.12);
+      --danger: #d1484d;
+      --muted: #6f7b8e;
     }
 
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; }
-    body {
-      font-family: "Noto Sans JP", "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(180deg, #1ca0e2 0%, #1d9ae7 16%, #1591d9 100%);
-      color: var(--text);
+    html, body {
+      margin: 0; min-height: 100%; background: var(--bg);
+      font-family: "Noto Sans JP", "Segoe UI", sans-serif; color: var(--ink);
     }
     button, input, select { font: inherit; }
     button { cursor: pointer; }
-    a { color: inherit; text-decoration: none; }
     .hidden { display: none !important; }
 
-    .notebook-app {
+    .workspace {
+      display: flex;
       min-height: 100vh;
-      padding: 18px 18px 26px;
+      background: var(--bg);
     }
 
-    .topbar {
+    .sidebar {
+      width: 240px;
+      background: #f7f7fb;
+      border-right: 1px solid #dfe3ed;
+      display: flex;
+      flex-direction: column;
+      padding: 14px 12px 18px;
+    }
+
+    .sidebar-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      min-height: 84px;
-      padding: 0 14px 0 6px;
+      padding: 6px 8px 14px;
+      border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+      margin-bottom: 12px;
     }
-
-    .brand-box h1 {
-      margin: 0;
-      font-size: clamp(1.8rem, 1.4vw + 1.3rem, 2.6rem);
-      line-height: 1.2;
-      letter-spacing: 0.02em;
-      font-weight: 800;
+    .book-name {
+      font-size: 0.93rem;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .brand-box small {
-      display: inline-block;
-      margin-top: 6px;
-      font-size: .92rem;
+    .book-count {
       color: var(--muted);
+      font-size: 0.72rem;
+      background: rgba(32,40,61,.06);
+      border-radius: 999px;
+      padding: 4px 8px;
     }
 
-    .header-actions {
+    .page-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: auto;
+      padding: 8px 4px 8px 0;
+    }
+
+    .page-item {
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(17,24,39,0.08);
+      border-radius: 10px;
+      padding: 8px 8px;
+      min-height: 76px;
+      transition: background .2s ease;
     }
-
-    .header-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 38px;
-      padding: 0 16px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.28);
-      background: rgba(255,255,255,.08);
-      color: var(--text);
-      font-weight: 700;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    .page-item.active {
+      background: #eaf1ff;
+      border-color: rgba(40, 106, 222, 0.2);
     }
-    .header-btn.primary {
-      background: rgba(255,255,255,.16);
-      border-color: rgba(255,255,255,.32);
-    }
-
-    .tabbar {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin: 8px 0 20px;
-      padding-left: 4px;
-    }
-
-    .tab {
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.82);
-      border-radius: 999px;
-      min-height: 38px;
-      padding: 0 18px;
-      font-weight: 700;
-    }
-    .tab.active {
-      background: rgba(255,255,255,.18);
-      color: white;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
-    }
-
-    .cover-row {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(190px, 1fr));
-      gap: 22px;
-      align-items: end;
-      min-height: 260px;
-      margin: 10px 0 28px;
-      padding: 10px 8px 0;
-    }
-
-    .cover-item {
+    .page-thumb {
+      width: 54px;
+      height: 70px;
+      flex-shrink: 0;
+      background: linear-gradient(180deg, #fff, #edf1f8);
+      border: 1px solid rgba(17,24,39,0.08);
+      border-radius: 6px;
       position: relative;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      min-height: 200px;
-      cursor: pointer;
-      transition: transform .2s ease, filter .2s ease;
-    }
-    .cover-item:hover { transform: translateY(-2px); }
-
-    .notebook-cover {
-      position: relative;
-      width: min(76%, 210px);
-      height: 160px;
-      border-radius: 9px 9px 6px 6px;
-      border: 1px solid rgba(0,0,0,.14);
-      box-shadow: 0 14px 28px rgba(5, 26, 48, .16);
       overflow: hidden;
-      background: #fff;
-      color: #1f2637;
     }
-    .notebook-cover::before {
+    .page-thumb::before {
       content: "";
       position: absolute;
       inset: 0;
       background: repeating-linear-gradient(
         to bottom,
-        rgba(14,22,40,.09),
-        rgba(14,22,40,.09) 1px,
+        rgba(17, 24, 39, 0.08),
+        rgba(17, 24, 39, 0.08) 1px,
         transparent 1px,
         transparent 5px
       );
-      opacity: .75;
-      pointer-events: none;
+      opacity: 0.7;
     }
-    .notebook-cover .header-band {
-      position: absolute;
-      inset: 0 0 auto 0;
-      height: 26px;
-      background: linear-gradient(180deg, rgba(21,24,36,.90), rgba(29,38,57,.78));
-      border-bottom: 1px solid rgba(255,255,255,.12);
+    .page-thumb img {
+      width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 1;
     }
-    .notebook-cover .brand-text {
-      position: absolute;
-      top: 12px;
-      left: 16px;
-      font-size: .62rem;
-      letter-spacing: .12em;
-      color: rgba(255,255,255,.8);
+    .page-info {
+      flex: 1; min-width: 0;
+    }
+    .page-title {
+      font-size: 0.72rem;
       font-weight: 700;
-      text-transform: uppercase;
+      color: var(--ink);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .notebook-cover .label {
-      position: absolute;
-      inset: 36px 16px auto 16px;
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: .02em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .notebook-cover.yellow { background: linear-gradient(180deg, #f7d531, #e8c52c); }
-    .notebook-cover.blue { background: linear-gradient(180deg, #1d3d7a, #152d56); }
-    .notebook-cover.blue .label { color: #f3f9ff; }
-    .notebook-cover.purple { background: linear-gradient(180deg, #d6d9fb, #c8cce9); }
-    .notebook-cover.white { background: linear-gradient(180deg, #f2f5f9, #ebeff4); }
-    .notebook-cover.dark {
-      background: linear-gradient(180deg, #101c2a, #0b1320);
-      color: #fff;
-    }
-    .notebook-cover.dark .label { color: #f5f9ff; }
-
-    .cover-meta {
-      margin-top: 14px;
-      text-align: center;
-      width: 100%;
-    }
-    .cover-meta .title {
+    .page-date {
       display: block;
-      font-size: 1.02rem;
+      margin-top: 4px;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+    .new-page {
+      margin-top: auto;
+      border: 1px dashed rgba(17,24,39,0.18);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.22);
+      color: var(--ink-soft);
       font-weight: 700;
-      color: white;
-      line-height: 1.5;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .cover-meta .subtitle {
-      display: block;
-      margin-top: 2px;
-      color: rgba(255,255,255,.8);
-      font-size: .82rem;
     }
 
-    .notice-box {
-      position: relative;
+    .editor {
+      flex: 1;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      min-height: 64px;
-      margin: 22px 8px 20px;
-      padding: 14px 18px;
-      border-radius: 16px;
-      background: rgba(255,255,255,.1);
-      border: 1px solid var(--line);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
-    }
-    .notice-box .notice-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 800;
-      font-size: 1.05rem;
-    }
-    .notice-box .notice-title .icon {
-      display: inline-grid;
-      place-items: center;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.18);
-    }
-    .notice-box .notice-hint {
-      color: rgba(255,255,255,.76);
-      font-size: .95rem;
-    }
-
-    .recent-panel {
-      margin: 0 8px;
-      padding-bottom: 6px;
-    }
-    .recent-panel .heading {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin: 6px 2px 18px;
-      font-size: clamp(1.2rem, 1vw + 1rem, 1.7rem);
-      font-weight: 800;
-    }
-    .recent-panel .heading .link {
-      color: rgba(255,255,255,.8);
-      font-size: .82rem;
-      font-weight: 700;
-    }
-
-    .recent-grid {
-      display: grid;
-      grid-template-columns: repeat(6, minmax(170px, 1fr));
-      gap: 18px;
-      overflow: hidden;
-      align-items: stretch;
-    }
-
-    .recent-card {
-      position: relative;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.08);
-      overflow: hidden;
-      min-height: 225px;
-      box-shadow: 0 12px 28px rgba(7,38,72,.12);
-      transition: transform .2s ease, box-shadow .2s ease;
-      cursor: pointer;
-    }
-    .recent-card:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(7,38,72,.18); }
-
-    .recent-card .thumb {
-      position: relative;
-      height: 150px;
-      border-radius: 12px 12px 0 0;
-      border-bottom: 1px solid rgba(11,20,35,.08);
-      background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(244,247,250,.95));
-      overflow: hidden;
-    }
-    .recent-card .thumb::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(13,18,31,.07),
-        rgba(13,18,31,.07) 1px,
-        transparent 1px,
-        transparent 6px
-      );
-      opacity: .8;
-      pointer-events: none;
-    }
-    .recent-card .thumb .mini-lines {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, transparent 0%, rgba(97,106,142,.05) 100%);
-    }
-    .recent-card .thumb .mini-title {
-      position: absolute;
-      left: 12px;
-      top: 18px;
-      font-size: .88rem;
-      color: rgba(18,24,36,.72);
-      font-weight: 700;
-    }
-    .recent-card .thumb .mini-mark {
-      position: absolute;
-      right: 12px;
-      top: 18px;
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      background: rgba(19,84,175,.1);
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      color: #143d7a;
-    }
-    .recent-card .body {
-      padding: 12px 12px 10px;
-    }
-    .recent-card .meta {
-      color: rgba(255,255,255,.76);
-      font-size: .74rem;
-      letter-spacing: .04em;
-      margin-bottom: 6px;
-    }
-    .recent-card .title {
-      display: block;
-      font-size: 1rem;
-      font-weight: 700;
-      line-height: 1.45;
-      color: white;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .recent-card .sub {
-      display: block;
-      margin-top: 6px;
-      color: rgba(255,255,255,.76);
-      font-size: .8rem;
-    }
-
-    .editor-panel {
-      margin-top: 26px;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+      flex-direction: column;
+      min-width: 0;
+      background: #dddfe7;
+      padding: 10px 14px 12px;
     }
 
     .toolbar {
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
       gap: 8px;
-      padding: 12px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,0.28);
+      border: 1px solid rgba(17,24,39,0.06);
       border-radius: 12px;
-      margin-bottom: 12px;
-    }
-    .toolbar label, .toolbar span { color: rgba(255,255,255,.84); font-weight: 700; }
-    .toolbar select, .toolbar input[type="text"], .toolbar input[type="color"], .toolbar input[type="range"], .toolbar button {
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.08);
-      color: white;
-      min-height: 36px;
-      padding: 0 10px;
-    }
-    .toolbar input[type="color"] { min-width: 50px; padding: 4px; }
-    .toolbar input[type="range"] { width: 110px; }
-    .toolbar button {
-      padding: 0 14px;
-      font-weight: 700;
-    }
-    .toolbar button.active {
-      background: rgba(255,255,255,.18);
-      border-color: rgba(255,255,255,.24);
-    }
-    .toolbar .save-btn {
-      margin-left: auto;
-      background: linear-gradient(180deg, #2e7dfb, #1f67d9);
-      border-color: transparent;
-      box-shadow: 0 10px 24px rgba(28,112,220,.28);
+      min-height: 54px;
+      padding: 8px 10px;
+      box-shadow: inset 0 1px rgba(255,255,255,.4);
     }
 
-    .canvas-wrap {
-      padding: 14px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
+    .tool-btn,
+    .toolbar select,
+    .toolbar input[type="text"],
+    .toolbar input[type="color"],
+    .toolbar input[type="range"],
+    .save-btn,
+    .top-btn {
+      border: 1px solid var(--toolbar-border);
+      background: var(--tool-btn);
+      color: var(--ink);
+      border-radius: 8px;
+      min-height: 32px;
+      padding: 0 12px;
     }
-    .sheet { display: block; width: min(100%, 900px); margin: 0 auto; border-radius: 4px; background: white; box-shadow: 0 16px 30px rgba(8,24,44,.18); }
+    .tool-btn.active {
+      background: var(--tool-btn-active);
+      border-color: rgba(44,126,245,.2);
+      color: var(--blue);
+      font-weight: 700;
+    }
+    .toolbar select { padding-right: 10px; }
+    .toolbar input[type="color"] { width: 48px; padding: 2px; }
+    .toolbar input[type="range"] { width: 90px; padding: 0; }
+    .toolbar input[type="text"] { min-width: 230px; }
+    .save-btn {
+      margin-left: auto;
+      background: linear-gradient(180deg, #2c7ef5, #1a67d9);
+      color: white;
+      border-color: rgba(18,72,170,0.3);
+      font-weight: 700;
+    }
+
+    .blank-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 0 4px;
+    }
+
+    .paper-shell {
+      position: relative;
+      width: min(100%, 760px);
+      height: min(80vh, 920px);
+      min-height: 480px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 10px 20px var(--shadow);
+      padding: 12px;
+    }
+
+    .paper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--paper);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(17,24,39,0.1);
+    }
+
+    .paper::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 28px,
+        rgba(17,24,39,.08) 29px,
+        transparent 30px
+      );
+      pointer-events: none;
+    }
+
+    .paper::after {
+      content: "";
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(
+        to right,
+        transparent 0,
+        transparent 12px,
+        rgba(17,24,39,0.04) 13px,
+        transparent 14px,
+        transparent 100%
+      );
+      pointer-events: none;
+    }
+
+    canvas {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    .note-titlebar {
+      position: absolute;
+      inset: 12px 24px auto 24px;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .title-box {
+      width: min(70%, 500px);
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.3rem;
+      letter-spacing: 0.04em;
+      color: rgba(17,24,39,0.8);
+      background: rgba(255,255,255, 0.5);
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid rgba(17,24,39,0.06);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bottom-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.28);
+      border: 1px solid rgba(17,24,39,0.06);
+      border-radius: 12px;
+      min-height: 54px;
+      padding: 8px 12px;
+      margin-top: 12px;
+      overflow: auto;
+    }
+
+    .swatch {
+      width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(17,24,39,0.2); display: inline-block;
+    }
+    .swatch.active { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(44,126,245,.35); }
 
     .status {
-      min-height: 1.4em;
-      color: rgba(255,255,255,.82);
-      margin: 8px 0 0;
-      font-size: .9rem;
+      min-height: 22px;
+      margin-top: 12px;
+      padding: 0 4px;
+      color: var(--ink-soft);
+      font-size: 0.85rem;
     }
-    .status.error { color: #ffd2d9; }
+    .status.error { color: var(--danger); }
 
     .login-box {
-      margin: 34px auto 0;
-      width: min(100%, 540px);
-      padding: 26px 22px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.18);
+      width: min(100%, 520px);
+      margin: 42px auto 0;
+      padding: 28px 20px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(17,24,39,0.06);
+      border-radius: 14px;
       text-align: center;
     }
-    .login-box strong { display: block; font-size: 1.4rem; margin-bottom: 8px; }
-    .login-box a {
-      display: inline-block;
-      margin-top: 10px;
-      font-weight: 700;
-      color: white;
-      text-decoration: underline;
+    .login-box strong { font-size: 1.3rem; display: block; margin-bottom: 8px; }
+    .login-box a { color: var(--blue); font-weight: 700; }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 200px; }
+      .toolbar { flex-wrap: wrap; }
+      .toolbar input[type="text"] { min-width: 0; flex: 1 1 160px; }
+      .paper-shell { height: 70vh; }
     }
 
-    @media (max-width: 980px) {
-      .cover-row { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
-      .recent-grid { grid-template-columns: repeat(2, minmax(170px, 1fr)); }
-      .topbar { flex-direction: column; align-items: flex-start; }
-    }
-
-    @media (max-width: 560px) {
-      .notebook-app { padding: 14px 12px 20px; }
-      .cover-row, .recent-grid { grid-template-columns: 1fr; }
-      .toolbar { justify-content: center; }
-      .toolbar .save-btn { margin-left: 0; }
+    @media (max-width: 680px) {
+      .workspace { flex-direction: column; }
+      .sidebar { width: 100%; border-right: 0; border-bottom: 1px solid #dfe3ed; }
+      .page-list { flex-direction: row; overflow: auto; }
+      .page-item { min-width: 180px; }
     }
   </style>
 </head>
 <body>
-  <div class="notebook-app">
-    <header class="topbar">
-      <div class="brand-box">
-        <h1>ようこそ、小川結土さん！</h1>
-        <small>今日は 11月15日（土）です</small>
+  <div class="workspace">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="book-name">漢字専用アルファ</div>
+        <span class="book-count" id="pageCount">0 件</span>
       </div>
-      <div class="header-actions">
-        <button class="header-btn" type="button">⏰ 時間割</button>
-        <button class="header-btn primary" type="button">＋ ジュノートを作る</button>
-      </div>
-    </header>
+      <div id="pageList" class="page-list" aria-label="ノート一覧"></div>
+      <button class="new-page" id="newPageSidebar" type="button">＋ ページを追加</button>
+    </aside>
 
-    <nav class="tabbar" aria-label="ノート種別">
-      <button class="tab active" type="button">授業ノート</button>
-      <button class="tab" type="button">ジュノート</button>
-    </nav>
-
-    <section id="coverRow" class="cover-row" aria-label="おすすめノート"></section>
-
-    <div class="notice-box">
-      <div class="notice-title"><span class="icon">◌</span> 通知</div>
-      <div class="notice-hint">通知はまだありません</div>
-    </div>
-
-    <section class="recent-panel" aria-label="最近開いたノート">
-      <div class="heading">
-        <span>最近使ったページ</span>
-        <a href="#" class="link">すべて見る</a>
-      </div>
-      <div id="recentGrid" class="recent-grid"></div>
-    </section>
-
-    <section id="editorPanel" class="editor-panel hidden" aria-label="手書きノート編集">
+    <main class="editor">
       <div class="toolbar">
-        <label for="penType">ペン</label>
-        <select id="penType" aria-label="ペンの種類">
-          <option value="ballpoint">ボールペン</option>
-          <option value="pencil">鉛筆</option>
-          <option value="marker">マーカー</option>
-          <option value="highlighter">蛍光ペン</option>
-        </select>
-        <button id="penButton" class="active" type="button">✎ 書く</button>
-        <button id="eraserButton" type="button">消しゴム</button>
-        <label>色</label>
-        <input id="color" type="color" value="#20283d" aria-label="ペンの色" />
-        <label>太さ</label>
-        <input id="size" type="range" min="2" max="28" value="5" aria-label="ペンの太さ" />
-        <button id="undo" type="button">↶ 戻す</button>
-        <button id="clear" type="button">全消去</button>
-        <input id="title" type="text" maxlength="80" placeholder="ノートのタイトル" aria-label="ノートのタイトル" style="width: min(220px, 36vw);" />
-        <button id="newPage" type="button">新しいページ</button>
-        <button id="save" class="save-btn" type="button">保存</button>
+        <button id="penTool" class="tool-btn active" type="button">ボールペン</button>
+        <button id="pencilTool" class="tool-btn" type="button">鉛筆</button>
+        <button id="markerTool" class="tool-btn" type="button">マーカー</button>
+        <button id="highlighterTool" class="tool-btn" type="button">蛍光</button>
+        <button id="eraserTool" class="tool-btn" type="button">消しゴム</button>
+        <label for="colorPicker" style="font-weight:700;">色</label>
+        <input id="colorPicker" type="color" value="#20283d" aria-label="ペンの色" />
+        <label for="sizeRange" style="font-weight:700;">太さ</label>
+        <input id="sizeRange" type="range" min="2" max="28" value="5" aria-label="ペンの太さ" />
+        <button id="undoBtn" class="tool-btn" type="button">戻す</button>
+        <button id="clearBtn" class="tool-btn" type="button">全消去</button>
+        <input id="noteTitle" type="text" maxlength="80" placeholder="ノートのタイトル" aria-label="ノートのタイトル" />
+        <button id="saveBtn" class="save-btn" type="button">保存</button>
       </div>
-      <div class="canvas-wrap">
-        <canvas id="sheet" class="sheet" width="900" height="1200" aria-label="ここにペンで書けます"></canvas>
+
+      <div class="blank-area">
+        <div class="paper-shell">
+          <div class="paper">
+            <div class="note-titlebar"><div id="titleBadge" class="title-box">漢字コンクール対策</div></div>
+            <canvas id="sheet" width="900" height="1200" aria-label="手書きノートのキャンバス"></canvas>
+          </div>
+        </div>
       </div>
-    </section>
 
-    <p id="status" class="status" role="status" aria-live="polite">接続しています…</p>
+      <div class="bottom-tools">
+        <button type="button" class="tool-btn active" data-color="#20283d" data-tool="ballpoint" style="padding:0 10px;">ボールペン</button>
+        <button type="button" class="tool-btn" data-tool="pencil" style="padding:0 10px;">鉛筆</button>
+        <button type="button" class="tool-btn" data-tool="marker" style="padding:0 10px;">マーカー</button>
+        <button type="button" class="tool-btn" data-tool="highlighter" style="padding:0 10px;">蛍光</button>
+        <button type="button" class="tool-btn" data-tool="eraser" style="padding:0 10px;">消しゴム</button>
+        <span style="display:inline-flex; align-items:center; gap:8px; margin-left: 10px;">
+          <span class="swatch active" data-color="#20283d" style="background:#20283d;"></span>
+          <span class="swatch" data-color="#ef4444" style="background:#ef4444;"></span>
+          <span class="swatch" data-color="#3b82f6" style="background:#3b82f6;"></span>
+          <span class="swatch" data-color="#22c55e" style="background:#22c55e;"></span>
+          <span class="swatch" data-color="#f59e0b" style="background:#f59e0b;"></span>
+        </span>
+      </div>
 
-    <section id="loginPrompt" class="login-box hidden">
-      <strong>ログインが必要です</strong>
-      <p>手書きノートを使うには、My Hubにログインしてください。</p>
-      <a href="./">My Hubへ戻る</a>
-    </section>
+      <div id="status" class="status" role="status" aria-live="polite">ノートを開いています…</div>
+    </main>
   </div>
+
+  <section id="loginPrompt" class="login-box hidden">
+    <strong>ログインが必要です</strong>
+    <p>手書きノートを使うには、My Hubにロ��インしてください。</p>
+    <a href="./">My Hubに戻る</a>
+  </section>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js?v=20261115-notebook"></script>
@@ -539,45 +418,63 @@
       const $ = (id) => document.getElementById(id);
       const canvas = $('sheet');
       const ctx = canvas.getContext('2d');
-      const state = { client:null, user:null, notebooks:[], strokes:[], activeStroke:null, baseImage:null, mode:'draw', currentId:null, saving:false };
+      const state = {
+        client: null,
+        user: null,
+        notebooks: [],
+        strokes: [],
+        currentId: null,
+        activeStroke: null,
+        mode: 'ballpoint',
+        color: '#20283d',
+        width: 5,
+        saving: false,
+        baseImage: null
+      };
 
-      const demoCovers = [
-        { title: '漢字専用アルファ', note: '授業ノート', color: 'white' },
-        { title: '英単語', note: '英語', color: 'yellow' },
-        { title: '数学', note: '授業ノート', color: 'blue' },
-        { title: '歴史', note: '定期テスト', color: 'purple' },
-      ];
-
-      function status(text, error=false){
+      function status(text, error = false) {
         const el = $('status');
         el.textContent = text;
         el.classList.toggle('error', error);
       }
 
-      function point(event){
+      function point(event) {
         const rect = canvas.getBoundingClientRect();
-        return { x:(event.clientX - rect.left) * canvas.width / rect.width, y:(event.clientY - rect.top) * canvas.height / rect.height };
+        return {
+          x: (event.clientX - rect.left) * canvas.width / rect.width,
+          y: (event.clientY - rect.top) * canvas.height / rect.height
+        };
       }
 
-      function strokeStyle(stroke){
-        const type = stroke.type;
-        let width = stroke.width;
-        let alpha = 1;
-        let composite = 'source-over';
-        if (type === 'pencil') { width *= 0.72; alpha = 0.58; }
-        if (type === 'marker') { width *= 2.6; alpha = 0.62; }
-        if (type === 'highlighter') { width *= 4; alpha = 0.28; }
-        if (stroke.erase) { width *= 3; alpha = 1; composite = 'destination-out'; }
-        return { width, alpha, composite };
-      }
-
-      function draw(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+      function drawPaperGrid() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#fff';
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-        if (state.baseImage) ctx.drawImage(state.baseImage, 0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const lineGap = 30;
+        const left = 48;
+        const right = canvas.width - 24;
+        ctx.strokeStyle = 'rgba(17,24,39,0.08)';
+        ctx.lineWidth = 1;
+        for (let y = 48; y < canvas.height; y += lineGap) {
+          ctx.beginPath();
+          ctx.moveTo(left, y);
+          ctx.lineTo(right, y);
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(20, 0);
+        ctx.lineTo(20, canvas.height);
+        ctx.strokeStyle = 'rgba(17,24,39,0.05)';
+        ctx.stroke();
+      }
+
+      function drawStrokes() {
+        if (state.baseImage) {
+          ctx.drawImage(state.baseImage, 0, 0, canvas.width, canvas.height);
+        }
         for (const stroke of state.strokes) {
-          if (!stroke.points.length) continue;
+          if (!stroke.points || !stroke.points.length) continue;
           const style = strokeStyle(stroke);
           ctx.save();
           ctx.globalAlpha = style.alpha;
@@ -587,6 +484,7 @@
           ctx.lineWidth = style.width;
           ctx.lineCap = 'round';
           ctx.lineJoin = 'round';
+
           if (stroke.points.length === 1) {
             const p = stroke.points[0];
             ctx.beginPath();
@@ -604,165 +502,199 @@
         }
       }
 
-      function blank(){
+      function drawCanvas() {
+        drawPaperGrid();
+        drawStrokes();
+      }
+
+      function strokeStyle(stroke) {
+        let width = Number(stroke.width) || 5;
+        let alpha = 1;
+        let composite = 'source-over';
+        if (stroke.type === 'pencil') { width *= 0.72; alpha = 0.58; }
+        if (stroke.type === 'marker') { width *= 2.4; alpha = 0.72; }
+        if (stroke.type === 'highlighter') { width *= 3.8; alpha = 0.24; }
+        if (stroke.erase) { width *= 2.8; alpha = 1; composite = 'destination-out'; }
+        return { width, alpha, composite };
+      }
+
+      function setTool(tool) {
+        state.mode = tool;
+        document.querySelectorAll('.tool-btn[data-tool], .tool-btn').forEach((btn) => {
+          if (btn.id === 'penTool' || btn.id === 'pencilTool' || btn.id === 'markerTool' || btn.id === 'highlighterTool' || btn.id === 'eraserTool') {
+            btn.classList.toggle('active', (btn.id === 'penTool' && tool === 'ballpoint') || (btn.id === 'pencilTool' && tool === 'pencil') || (btn.id === 'markerTool' && tool === 'marker') || (btn.id === 'highlighterTool' && tool === 'highlighter') || (btn.id === 'eraserTool' && tool === 'eraser');
+          }
+          if (btn.dataset.tool) {
+            btn.classList.toggle('active', btn.dataset.tool === tool);
+          }
+        });
+      }
+
+      function setColor(color) {
+        state.color = color;
+        $('colorPicker').value = color;
+        document.querySelectorAll('.swatch').forEach((s) => s.classList.toggle('active', s.dataset.color === color));
+      }
+
+      function blankPage() {
         state.currentId = null;
         state.strokes = [];
         state.baseImage = null;
-        $('title').value = '';
-        draw();
-        status('新しいページです。ペンの種��を選んで書き、保存してください。');
+        $('noteTitle').value = '';
+        $('titleBadge').textContent = '新しいページ';
+        drawCanvas();
       }
 
-      function setMode(mode){
-        state.mode = mode;
-        $('penButton').classList.toggle('active', mode === 'draw');
-        $('eraserButton').classList.toggle('active', mode === 'erase');
+      function imageOf(note) {
+        return note?.imageDataUrl || note?.drawing || '';
+      }
+
+      function renderSidebar() {
+        const list = $('pageList');
+        list.replaceChildren();
+        const notes = state.notebooks.length ? state.notebooks : [];
+        $('pageCount').textContent = `${notes.length} 件`;
+
+        notes.forEach((note, index) => {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'page-item' + (state.currentId === note.id ? ' active' : '');
+          item.addEventListener('click', () => openNotebook(note));
+          const thumb = document.createElement('div');
+          thumb.className = 'page-thumb';
+          const img = document.createElement('img');
+          img.alt = note.title || 'ノート';
+          img.src = imageOf(note) || '';
+          if (img.src) thumb.appendChild(img);
+          const info = document.createElement('div');
+          info.className = 'page-info';
+          const title = document.createElement('div');
+          title.className = 'page-title';
+          title.textContent = note.title || `ページ ${index + 1}`;
+          const date = document.createElement('span');
+          date.className = 'page-date';
+          date.textContent = note.updatedAt ? new Date(note.updatedAt).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' }) : '今日';
+          info.append(title, date);
+          item.append(thumb, info);
+          list.append(item);
+        });
+      }
+
+      function openNotebook(note) {
+        state.currentId = note.id;
+        state.strokes = [];
+        $('noteTitle').value = note.title || '';
+        $('titleBadge').textContent = note.title || '新しいページ';
+
+        const src = imageOf(note);
+        if (src) {
+          const img = new Image();
+          img.onload = () => {
+            state.baseImage = img;
+            drawCanvas();
+          };
+          img.onerror = () => {
+            state.baseImage = null;
+            drawCanvas();
+          };
+          img.src = src;
+        } else {
+          state.baseImage = null;
+          drawCanvas();
+        }
+
+        renderSidebar();
       }
 
       canvas.addEventListener('pointerdown', (event) => {
         if (!state.user) return;
         event.preventDefault();
         canvas.setPointerCapture(event.pointerId);
+        const erase = state.mode === 'eraser';
         state.activeStroke = {
-          type: state.mode === 'erase' ? 'eraser' : $('penType').value,
-          erase: state.mode === 'erase',
-          color: $('color').value,
-          width: Number($('size').value),
+          type: erase ? 'eraser' : state.mode,
+          erase,
+          color: erase ? '#fff' : state.color,
+          width: Number($('sizeRange').value),
           points: [point(event)]
         };
         state.strokes.push(state.activeStroke);
-        draw();
+        drawCanvas();
       });
 
       canvas.addEventListener('pointermove', (event) => {
         if (!state.activeStroke) return;
         event.preventDefault();
         state.activeStroke.points.push(point(event));
-        draw();
+        drawCanvas();
       });
 
-      function endStroke(){ state.activeStroke = null; }
-      canvas.addEventListener('pointerup', endStroke);
-      canvas.addEventListener('pointercancel', endStroke);
-      canvas.addEventListener('lostpointercapture', endStroke);
+      function finishStroke() {
+        state.activeStroke = null;
+      }
+      canvas.addEventListener('pointerup', finishStroke);
+      canvas.addEventListener('pointercancel', finishStroke);
+      canvas.addEventListener('lostpointercapture', finishStroke);
 
-      $('penButton').addEventListener('click', () => setMode('draw'));
-      $('eraserButton').addEventListener('click', () => setMode('erase'));
-      $('undo').addEventListener('click', () => { state.strokes.pop(); draw(); });
-      $('clear').addEventListener('click', () => {
+      $('undoBtn').addEventListener('click', () => {
+        state.strokes.pop();
+        drawCanvas();
+      });
+
+      $('clearBtn').addEventListener('click', () => {
         if (confirm('このページの書き込みをすべて消しますか？')) {
           state.strokes = [];
-          state.baseImage = null;
-          draw();
+          drawCanvas();
         }
       });
-      $('newPage').addEventListener('click', () => {
-        if ((state.strokes.length || state.baseImage) && !confirm('未保存の内容を閉じて新しいページを作りますか？')) return;
-        blank();
+
+      $('newPageSidebar').addEventListener('click', () => {
+        blankPage();
       });
 
-      function imageOf(note){ return note?.imageDataUrl || note?.drawing || ''; }
+      document.querySelectorAll('.tool-btn[data-tool]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const tool = btn.dataset.tool;
+          setTool(tool);
+        });
+      });
+      $('penTool').addEventListener('click', () => setTool('ballpoint'));
+      $('pencilTool').addEventListener('click', () => setTool('pencil'));
+      $('markerTool').addEventListener('click', () => setTool('marker'));
+      $('highlighterTool').addEventListener('click', () => setTool('highlighter'));
+      $('eraserTool').addEventListener('click', () => setTool('eraser'));
 
-      function openNotebook(note){
-        $('editorPanel').classList.remove('hidden');
-        state.currentId = note.id;
-        state.strokes = [];
-        $('title').value = note.title || '';
-        const image = new Image();
-        image.onload = () => { state.baseImage = image; draw(); status(`「${note.title || '無題'}」を開きました。変更したら保存してください。`); };
-        image.onerror = () => status('ノート画像を読み込めませんでした。', true);
-        image.src = imageOf(note);
-      }
+      $('colorPicker').addEventListener('input', (event) => setColor(event.target.value));
+      document.querySelectorAll('.swatch').forEach((swatch) => {
+        swatch.addEventListener('click', () => setColor(swatch.dataset.color));
+      });
+      $('sizeRange').addEventListener('input', (event) => {
+        state.width = Number(event.target.value);
+      });
 
-      function renderCoverRow(){
-        const row = $('coverRow');
-        row.replaceChildren();
-        const list = state.notebooks.length ? state.notebooks.slice(0, 4) : demoCovers;
-        for (const item of list) {
-          const card = document.createElement('div');
-          card.className = 'cover-item';
-          if (item && item.id) card.addEventListener('click', () => openNotebook(item));
-          const cover = document.createElement('div');
-          const palette = item.color || item.palette || 'white';
-          cover.className = `notebook-cover ${palette}`;
-          const band = document.createElement('div');
-          band.className = 'header-band';
-          const brand = document.createElement('div');
-          brand.className = 'brand-text';
-          brand.textContent = 'Campus';
-          const label = document.createElement('div');
-          label.className = 'label';
-          label.textContent = item.title || 'ノート';
-          cover.append(band, brand, label);
-          const meta = document.createElement('div');
-          meta.className = 'cover-meta';
-          const title = document.createElement('span');
-          title.className = 'title';
-          title.textContent = item.title || '授業ノート';
-          const sub = document.createElement('span');
-          sub.className = 'subtitle';
-          sub.textContent = item.note || '授業ノート';
-          meta.append(title, sub);
-          card.append(cover, meta);
-          row.append(card);
-        }
-      }
-
-      function renderRecentGrid(){
-        const grid = $('recentGrid');
-        grid.replaceChildren();
-        const list = state.notebooks.length ? state.notebooks.slice(0, 6) : demoCovers;
-        for (const item of list) {
-          const card = document.createElement('article');
-          card.className = 'recent-card';
-          if (item && item.id) card.addEventListener('click', () => openNotebook(item));
-          const thumb = document.createElement('div');
-          thumb.className = 'thumb';
-          const miniLines = document.createElement('div');
-          miniLines.className = 'mini-lines';
-          const miniTitle = document.createElement('div');
-          miniTitle.className = 'mini-title';
-          miniTitle.textContent = item.title || '授業ノート';
-          const miniMark = document.createElement('div');
-          miniMark.className = 'mini-mark';
-          miniMark.textContent = 'ノ';
-          thumb.append(miniLines, miniTitle, miniMark);
-          const body = document.createElement('div');
-          body.className = 'body';
-          const meta = document.createElement('div');
-          meta.className = 'meta';
-          meta.textContent = '最終更新 ' + (item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' }) : '2026/11/15');
-          const title = document.createElement('span');
-          title.className = 'title';
-          title.textContent = item.title || '授業ノート';
-          const sub = document.createElement('span');
-          sub.className = 'sub';
-          sub.textContent = item.note || '授業ノート';
-          body.append(meta, title, sub);
-          card.append(thumb, body);
-          grid.append(card);
-        }
-      }
-
-      async function loadNotebooks(){
+      async function loadNotebooks() {
         const { data, error } = await state.client.from('study_profiles').select('workspace').eq('user_id', state.user.id).maybeSingle();
         if (error) throw error;
         const workspace = data && typeof data.workspace === 'object' ? data.workspace : {};
         state.notebooks = Array.isArray(workspace.notebooks) ? workspace.notebooks : [];
-        renderCoverRow();
-        renderRecentGrid();
+        renderSidebar();
+        if (state.notebooks.length) openNotebook(state.notebooks[0]);
+        else blankPage();
       }
 
-      async function saveNotebook(){
+      async function savePage() {
         if (state.saving) return;
         state.saving = true;
+        status('保存しています…');
         try {
-          const imageDataUrl = canvas.toDataURL('image/jpeg', .68);
+          const title = $('noteTitle').value.trim() || '新しいページ';
+          $('titleBadge').textContent = title;
           const now = new Date().toISOString();
-          const note = {
+          const imageDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+          const page = {
             id: state.currentId || globalThis.crypto?.randomUUID?.() || String(Date.now()),
-            title: $('title').value.trim() || '無題',
-            createdAt: state.notebooks.find(n => n.id === state.currentId)?.createdAt || now,
+            title,
+            createdAt: state.notebooks.find((n) => n.id === state.currentId)?.createdAt || now,
             updatedAt: now,
             imageDataUrl,
             note: '授業ノート'
@@ -772,8 +704,8 @@
           if (error) throw error;
           const workspace = data && typeof data.workspace === 'object' ? data.workspace : {};
           const notebooks = Array.isArray(workspace.notebooks) ? [...workspace.notebooks] : [];
-          const index = notebooks.findIndex(n => n.id === note.id);
-          if (index >= 0) notebooks[index] = note; else notebooks.push(note);
+          const idx = notebooks.findIndex((n) => n.id === page.id);
+          if (idx >= 0) notebooks[idx] = page; else notebooks.push(page);
 
           const { error: updateError } = await state.client.from('study_profiles').update({
             workspace: { ...workspace, notebooks },
@@ -782,44 +714,20 @@
           if (updateError) throw updateError;
 
           state.notebooks = notebooks;
-          state.currentId = note.id;
-          renderCoverRow();
-          renderRecentGrid();
-          status('ノートを保存しました。');
+          state.currentId = page.id;
+          renderSidebar();
+          status('保存しました。');
         } catch (error) {
           console.error(error);
-          status(`保存できませんでした: ${error.message || '接続を確認してください。'}`, true);
+          status(error.message || '保存できませんでした。', true);
         } finally {
           state.saving = false;
         }
       }
 
-      async function deleteNotebook(note){
-        if (!confirm(`「${note.title || '無題'}」を削除しますか？`)) return;
-        try {
-          const { data, error } = await state.client.from('study_profiles').select('workspace').eq('user_id', state.user.id).maybeSingle();
-          if (error) throw error;
-          const workspace = data && typeof data.workspace === 'object' ? data.workspace : {};
-          const notebooks = (Array.isArray(workspace.notebooks) ? workspace.notebooks : []).filter(n => n.id !== note.id);
-          const { error: updateError } = await state.client.from('study_profiles').update({
-            workspace: { ...workspace, notebooks },
-            updated_at: new Date().toISOString()
-          }).eq('user_id', state.user.id);
-          if (updateError) throw updateError;
-          state.notebooks = notebooks;
-          renderCoverRow();
-          renderRecentGrid();
-          if (state.currentId === note.id) blank();
-          status('ノートを削除しました。');
-        } catch (error) {
-          console.error(error);
-          status(`削除できませんでした: ${error.message || '接続を確認してください。'}`, true);
-        }
-      }
+      $('saveBtn').addEventListener('click', savePage);
 
-      $('save').addEventListener('click', saveNotebook);
-
-      async function init(){
+      async function init() {
         try {
           if (!window.supabase || !window.STUDYFLOW_SUPABASE_URL || !window.STUDYFLOW_SUPABASE_ANON_KEY) {
             throw new Error('Supabaseの設定を確認してください。');
@@ -834,14 +742,15 @@
           }
           state.user = data.session.user;
           await loadNotebooks();
-          $('editorPanel').classList.remove('hidden');
-          blank();
+          setTool('ballpoint');
+          setColor('#20283d');
         } catch (error) {
           console.error(error);
-          status(error.message || 'ノートを開けませんでした。', true);
+          status(error.message || 'ノートを読み込めませんでした。', true);
         }
       }
 
+      drawCanvas();
       init();
     })();
   </script>
