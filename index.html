@@ -8,14 +8,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20261115-authfix" />
 </head>
 <body>
   <section id="authScreen" class="auth-screen">
     <div class="auth-card">
       <a class="brand" href="#"><span class="brand-mark">H</span><span><small>PERSONAL SPACE</small><strong>My Hub</strong></span></a>
       <p class="auth-intro">タスクもメモも習慣も。毎日のことを、ここにまとめよう。</p>
-      <div class="auth-tabs"><button id="loginTab" class="auth-tab active" type="button">ログイン</button><button id="signupTab" class="auth-tab" type="button">新規登録</button></div>
+      <div class="auth-tabs" role="tablist" aria-label="アカウント操作">
+        <button id="loginTab" class="auth-tab active" type="button" onclick="window.myHubSetAuthMode('login')">ログイン</button>
+        <button id="signupTab" class="auth-tab" type="button" onclick="window.myHubSetAuthMode('signup')">新規登録</button>
+      </div>
       <form id="authForm" class="auth-form">
         <label id="nameField" class="field hidden">表示名<input id="displayName" type="text" autocomplete="name" maxlength="40" placeholder="例：はな" /></label>
         <label class="field">メールアドレス<input id="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com" /></label>
@@ -38,7 +41,10 @@
         <button class="nav-link" data-view="habits" type="button"><span>✦</span>習慣</button>
         <button class="nav-link" data-view="events" type="button"><span>▦</span>予定</button>
       </nav>
-      <div class="sidebar-bottom"><div class="profile"><span id="avatar" class="avatar">H</span><span class="profile-copy"><strong id="profileName">ユーザー</strong><small id="profileEmail"></small></span></div><button id="logoutBtn" class="logout" type="button">ログアウト</button></div>
+      <div class="sidebar-bottom">
+        <div class="profile"><span id="avatar" class="avatar">H</span><span class="profile-copy"><strong id="profileName">ユーザー</strong><small id="profileEmail"></small></span></div>
+        <button id="logoutBtn" class="logout" type="button">ログアウト</button>
+      </div>
     </aside>
     <main class="main">
       <header class="topbar"><div><p class="overline">YOUR PERSONAL DASHBOARD</p><h1 id="pageTitle">ホーム</h1></div><div class="today-chip" id="todayLabel"></div></header>
@@ -57,13 +63,13 @@
       </section>
       <section id="tasksView" class="view hidden"><div class="section-intro"><p>やることを追加して、終わったらチェックしましょう。</p></div><article class="panel"><form id="taskForm" class="entry-form"><input id="taskInput" type="text" maxlength="120" placeholder="新しいタスクを入力" aria-label="タスク" required /><button class="button primary" type="submit">タスクを追加</button></form><ul id="taskList" class="item-list"></ul><p id="taskEmpty" class="empty">タスクはまだありません。</p></article></section>
       <section id="notesView" class="view hidden"><div class="section-intro"><p>思いついたことや、忘れたくないことを書き留めておけます。</p></div><article class="panel"><form id="noteForm" class="note-form"><input id="noteTitle" type="text" maxlength="100" placeholder="タイトル" aria-label="メモのタイトル" required /><textarea id="noteBody" rows="4" maxlength="3000" placeholder="メモを書く…" aria-label="メモの内容"></textarea><button class="button primary" type="submit">メモを保存</button></form><div id="noteList" class="note-grid"></div><p id="noteEmpty" class="empty">メモはまだありません。</p></article></section>
-      <section id="habitsView" class="view hidden"><div class="section-intro"><p>毎日続けたいことを登録して、今日できたらチェックしましょう。</p></div><article class="panel"><form id="habitForm" class="entry-form"><input id="habitInput" type="text" maxlength="80" placeholder="例：水を飲む、散歩する" aria-label="習慣" required /><button class="button primary" type="submit">習慣を追加</button></form><ul id="habitList" class="item-list"></ul><p id="habitEmpty" class="empty">習慣をひとつ追加してみましょう。</p></article></section>
+      <section id="habitsView" class="view hidden"><div class="section-intro"><p>毎日続けたいことを登録して、今日できたらチェックしましょう。</p></div><article class="panel"><form id="habitForm" class="entry-form"><input id="habitInput" type="text" maxlength="80" placeholder="例：水を飲む、散歩する" aria-label="習慣" required /><button class="button primary" type="submit">習慣を���加</button></form><ul id="habitList" class="item-list"></ul><p id="habitEmpty" class="empty">習慣をひとつ追加してみましょう。</p></article></section>
       <section id="eventsView" class="view hidden"><div class="section-intro"><p>日付を決めて、忘れたくない予定を記録できます。</p></div><article class="panel"><form id="eventForm" class="entry-form event-form"><input id="eventTitle" type="text" maxlength="120" placeholder="予定の内容" aria-label="予定の内容" required /><input id="eventDate" type="date" aria-label="日付" required /><button class="button primary" type="submit">予定を追加</button></form><ul id="eventList" class="item-list"></ul><p id="eventEmpty" class="empty">予定はまだありません。</p></article></section>
       <footer class="footer">Your space, your pace. <strong>My Hub</strong></footer>
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
-  <script src="hub.js"></script>
+  <script src="supabase-config.js?v=20261115-authfix"></script>
+  <script src="hub.js?v=20261115-authfix"></script>
 </body>
 </html>
