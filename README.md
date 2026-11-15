@@ -1,16 +1,60 @@
 # StudyFlow
 
-ログインして使う、個人向け学習ダッシュボードのプロトタイプです。
+StudyFlow は、学習の習慣化を支えるためのシンプルな学習管理サイトです。
 
-## 機能
-- メールアドレスとパスワードによる新規登録・ログイン画面
-- アカウントごとに分離されたTo-do、科目別進捗、学習時間、ポモドーロ数
-- 25分の集中タイマー、タスクの追加・完了・削除
-- ブラウザー内ストレージに保存し、同じブラウザーでは再訪時もデータを保持
-- スマートフォンにも対応したレイアウト
+## できること
+- 25分集中タイマー
+- To-do 管理
+- 科目ごとの進捗表示
+- アカウントごとの個人データ管理
+- GitHub Pages にそのまま公開可能
 
-## 起動方法
-`index.html` をブラウザーで開いてください。GitHub Pagesに公開する場合は、リポジトリの Settings → Pages から公開元を設定します。
+## 使い方
+1. `index.html` をブラウザーで開く
+2. 新規登録またはログイン
+3. タスクを追加して学習を開始
 
-## 認証に関する注意
-これは静的サイトで動くデモです。アカウント情報とパスワードをブラウザーの `localStorage` に保存するため、本番環境で安全なログインとして使用しないでください。また、データは同じブラウザー内にのみ保存され、他の端末とは同期されません。本番公開する場合は、Firebase Authentication / Supabase Auth などの認証サービスと、ユーザーごとのアクセス制御があるデータベースを接続してください。
+## 本格ログイン対応の方法
+今の実装は、Supabase を使った本格ログインに対応する準備を入れています。
+
+### 1. Supabase を作成する
+- https://supabase.com にアクセス
+- 新規プロジェクトを作成
+- SQL Editor で次のテーブルを作成
+
+```sql
+create table public.study_profiles (
+  user_id uuid primary key,
+  email text not null,
+  name text not null,
+  tasks jsonb not null default '[]'::jsonb,
+  total_study_time integer not null default 0,
+  pomodoro_count integer not null default 0,
+  streak_count integer not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.study_profiles enable row level security;
+```
+
+### 2. `script.js` の設定を変更する
+`script.js` の先頭にある次の値を自分の Supabase の値に置き換えます。
+
+```js
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+```
+
+### 3. そのまま GitHub Pages へ公開
+- GitHub リポジトリで Settings → Pages を開く
+- Branch: `main`
+- Folder: `/ (root)`
+- Save
+
+## 注意事項
+- このデモはブラウザー内の localStorage を使うこともできます。
+- 本番運用の本格認証では、Supabase Auth と RLS を使うのが安全です。
+- GitHub Pages は静的サイトのみです。データベースや本格ログインはバックエンドサービスが必要です。
+
+## ライセンス
+MIT
