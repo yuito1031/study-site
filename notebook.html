@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111a2e" />
+  <title>手書きノート — My Hub</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;color:#20283d;background:#f6f7fb;--primary:#5865e8;--line:#e5e8f0;--muted:#7c8498}*{box-sizing:border-box}body{margin:0;min-width:320px}button,input{font:inherit}button{cursor:pointer}.top{height:auto;min-height:64px;padding:12px clamp(16px,4vw,36px);background:#111a2e;color:white;display:flex;justify-content:space-between;align-items:center;gap:12px}.top a{color:white;text-decoration:none;font-weight:700}.top small{color:#aab3c7}.wrap{max-width:1180px;margin:auto;padding:24px clamp(14px,3vw,30px) 50px}.intro h1{margin:0 0 6px;font-size:1.55rem}.intro p{margin:0;color:var(--muted)}.toolbar{position:sticky;top:0;z-index:2;margin:20px 0 14px;padding:10px;background:#fff;border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;box-shadow:0 4px 16px #20283d0a}.toolbar button,.toolbar input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 11px;color:#30384d}.toolbar button.active{border-color:var(--primary);color:var(--primary);background:#f1f2ff}.toolbar .save{border:0;background:var(--primary);color:white;font-weight:700}.toolbar input[type=color]{height:38px;width:44px;padding:3px}.toolbar input[type=range]{width:100px;padding:0}.toolbar .title{width:min(230px,48vw)}.status{min-height:1.5em;color:var(--muted);font-size:.86rem;margin:6px 2px}.status.error{color:#c34050}.canvas-wrap{max-width:850px;margin:0 auto;background:#dfe3ec;padding:12px;border-radius:14px}.sheet{display:block;width:100%;height:auto;aspect-ratio:3/4;background:white;touch-action:none;box-shadow:0 4px 16px #20283d1a;border-radius:3px;cursor:crosshair}.saved{margin-top:30px}.saved h2{font-size:1.1rem}.pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}.page{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px;min-width:0}.page img{width:100%;aspect-ratio:3/4;object-fit:contain;background:#f4f5f8;border-radius:7px;display:block}.page .row{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:8px}.page strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.86rem}.page button{border:1px solid var(--line);border-radius:7px;background:white;padding:5px 8px;color:#394258}.page button.delete{color:#b43d4d}.empty{color:var(--muted);font-size:.9rem}.hidden{display:none!important}@media(max-width:600px){.top{align-items:flex-start}.toolbar{gap:6px}.toolbar button{padding:7px 9px}.toolbar .title{order:10;width:100%}.canvas-wrap{padding:6px}}
+  </style>
+</head>
+<body>
+  <header class="top"><a href="./">← My Hub</a><small>手書きノート</small></header>
+  <main class="wrap">
+    <div class="intro"><h1>手書きノート</h1><p>ペンやタッチで書いて、アカウントに保存できます。</p></div>
+    <p id="status" class="status" role="status" aria-live="polite">Supabaseに接続しています…</p>
+    <section id="editor" class="hidden" aria-label="手書きノート編集">
+      <div class="toolbar">
+        <button id="pen" class="active" type="button">✎ ペン</button>
+        <button id="eraser" type="button">消しゴム</button>
+        <label>色 <input id="color" type="color" value="#20283d" aria-label="ペンの色" /></label>
+        <label>太さ <input id="size" type="range" min="2" max="28" value="5" aria-label="ペンの太さ" /></label>
+        <button id="undo" type="button">↶ 戻す</button>
+        <button id="clear" type="button">全消去</button>
+        <input id="title" class="title" maxlength="80" placeholder="ノートのタイトル" aria-label="ノートのタイトル" />
+        <button id="newPage" type="button">新しいページ</button>
+        <button id="save" class="save" type="button">保存</button>
+      </div>
+      <div class="canvas-wrap"><canvas id="sheet" class="sheet" width="1200" height="1600" aria-label="ここにペンで書けます"></canvas></div>
+      <section class="saved"><h2>保存したノート</h2><div id="pages" class="pages"></div><p id="pagesEmpty" class="empty">保存したノートはありません。</p></section>
+    </section>
+    <section id="loginPrompt" class="hidden"><p>手書きノートを使うには、先にMy Hubへログインしてください。</p><a href="./">My Hubでログインする</a></section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=20261115-authfix"></script>
+  <script>
+  (() => {
+    const $ = id => document.getElementById(id);
+    const status = $('status'), canvas = $('sheet'), ctx = canvas.getContext('2d');
+    const state = { client:null, user:null, profile:null, notes:[], strokes:[], baseImage:null, activeStroke:null, tool:'pen', currentId:null, saving:false };
+    function say(text, error=false){status.textContent=text;status.classList.toggle('error',error)}
+    function blank(){state.currentId=null;state.strokes=[];state.baseImage=null;$('title').value='';draw();say('新しいページです。書いたあと���保存」を押してください。')}
+    function draw(){ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);if(state.baseImage)ctx.drawImage(state.baseImage,0,0,canvas.width,canvas.height);for(const stroke of state.strokes){if(!stroke.points.length)continue;ctx.save();ctx.globalCompositeOperation=stroke.erase?'destination-out':'source-over';ctx.strokeStyle=stroke.color;ctx.fillStyle=stroke.color;ctx.lineWidth=stroke.width;ctx.lineCap='round';ctx.lineJoin='round';if(stroke.points.length===1){const p=stroke.points[0];ctx.beginPath();ctx.arc(p.x,p.y,stroke.width/2,0,Math.PI*2);ctx.fill()}else{ctx.beginPath();ctx.moveTo(stroke.points[0].x,stroke.points[0].y);for(let i=1;i<stroke.points.length;i++)ctx.lineTo(stroke.points[i].x,stroke.points[i].y);ctx.stroke()}ctx.restore()}}
+    function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}
+    canvas.addEventListener('pointerdown',e=>{if(!state.user)return;e.preventDefault();canvas.setPointerCapture(e.pointerId);const erase=state.tool==='eraser';state.activeStroke={color:$('color').value,width:Number($('size').value)*(erase?3:1),erase,points:[point(e)]};state.strokes.push(state.activeStroke);draw()});
+    canvas.addEventListener('pointermove',e=>{if(!state.activeStroke)return;e.preventDefault();state.activeStroke.points.push(point(e));draw()});
+    function finish(){state.activeStroke=null}canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);canvas.addEventListener('lostpointercapture',finish);
+    $('pen').addEventListener('click',()=>{state.tool='pen';$('pen').classList.add('active');$('eraser').classList.remove('active')});
+    $('eraser').addEventListener('click',()=>{state.tool='eraser';$('eraser').classList.add('active');$('pen').classList.remove('active')});
+    $('undo').addEventListener('click',()=>{state.strokes.pop();draw()});
+    $('clear').addEventListener('click',()=>{if(confirm('このページの書き込みをすべて消しますか？')){state.strokes=[];state.baseImage=null;draw()}});
+    $('newPage').addEventListener('click',()=>{if(state.strokes.length&&!confirm('未保存の書き込みを破棄して新しいページを作りますか？'))return;blank()});
+    function noteImage(note){return note?.imageDataUrl||note?.drawing||''}
+    function openNote(note){state.currentId=note.id;state.strokes=[];$('title').value=note.title||'';const src=noteImage(note);if(!src){state.baseImage=null;draw();say('このノートに画像データがありません。',true);return}const image=new Image();image.onload=()=>{state.baseImage=image;draw();say(`「${note.title||'無題'}」を開きました。変更後は保存してください。`)};image.onerror=()=>say('ノート画像を読み込めませんでした。',true);image.src=src}
+    function renderPages(){const holder=$('pages');holder.replaceChildren();const notes=state.notes.filter(note=>noteImage(note));$('pagesEmpty').classList.toggle('hidden',notes.length>0);for(const note of [...notes].reverse()){const card=document.createElement('article');card.className='page';const image=document.createElement('img');image.src=noteImage(note);image.alt=`${note.title||'無題'}のプレビュー`;const row=document.createElement('div');row.className='row';const name=document.createElement('strong');name.textContent=note.title||'無題';const open=document.createElement('button');open.type='button';open.textContent='開く';open.addEventListener('click',()=>openNote(note));const del=document.createElement('button');del.type='button';del.textContent='削除';del.className='delete';del.addEventListener('click',()=>deleteNote(note));row.append(name,open,del);card.append(image,row);holder.append(card)}}
+    async function refresh(){const {data,error}=await state.client.from('study_profiles').select('user_id,name,workspace').eq('user_id',state.user.id).maybeSingle();if(error)throw error;if(!data)throw new Error('プロフィールが見つかりません。My Hubに一度ログインし直してください。');state.profile=data;state.notes=Array.isArray(data.workspace?.notes)?data.workspace.notes:[];renderPages()}
+    async function save(){if(state.saving)return;state.saving=true;$('save').disabled=true;say('保存しています…');try{const imageDataUrl=canvas.toDataURL('image/jpeg',0.72);const note={id:state.currentId||crypto.randomUUID(),title:$('title').value.trim()||'無題',body:'',createdAt:new Date().toISOString(),imageDataUrl};const {data,error}=await state.client.from('study_profiles').select('workspace').eq('user_id',state.user.id).maybeSingle();if(error)throw error;if(!data)throw new Error('保存先プロフィールが見つかりません。');const workspace=data.workspace&&typeof data.workspace==='object'?data.workspace:{};const notes=Array.isArray(workspace.notes)?workspace.notes:[];const index=notes.findIndex(item=>item.id===note.id);if(index>=0)notes[index]=note;else notes.push(note);const {error:updateError}=await state.client.from('study_profiles').update({workspace:{...workspace,notes},updated_at:new Date().toISOString()}).eq('user_id',state.user.id);if(updateError)throw updateError;state.currentId=note.id;state.notes=notes;renderPages();say('保存しました。別の端末からも同じアカウントで開けます。')}catch(error){console.error(error);say(`保存できませんでした: ${error.message||'接続を確認してください。'}`,true)}finally{state.saving=false;$('save').disabled=false}}
+    async function deleteNote(note){if(!confirm(`「${note.title||'無題'}」を削除しますか？`))return;try{const {data,error}=await state.client.from('study_profiles').select('workspace').eq('user_id',state.user.id).maybeSingle();if(error)throw error;const workspace=data?.workspace||{};const notes=(Array.isArray(workspace.notes)?workspace.notes:[]).filter(item=>item.id!==note.id);const {error:updateError}=await state.client.from('study_profiles').update({workspace:{...workspace,notes},updated_at:new Date().toISOString()}).eq('user_id',state.user.id);if(updateError)throw updateError;state.notes=notes;if(state.currentId===note.id)blank();renderPages();say('ノートを削除しました。')}catch(error){console.error(error);say(`削除できませんでした: ${error.message||'接続を確認してください。'}`,true)}}
+    $('save').addEventListener('click',save);
+    async function init(){try{if(!window.supabase)throw new Error('Supabaseライブラリを読み込めません。');state.client=window.supabase.createClient(window.STUDYFLOW_SUPABASE_URL,window.STUDYFLOW_SUPABASE_ANON_KEY);const {data,error}=await state.client.auth.getSession();if(error)throw error;if(!data.session?.user){$('loginPrompt').classList.remove('hidden');say('ログインが必要です。');return}state.user=data.session.user;$('editor').classList.remove('hidden');await refresh();if(!$('title').value)blank();say('ペンまたはタッチで書けます。内容は「保存」でアカウントに保存されます。')}catch(error){console.error(error);say(error.message||'初期化に失敗しました。',true)}}
+    init();
+  })();
+  </script>
+</body>
+</html>
